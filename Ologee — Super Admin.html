@@ -1,0 +1,774 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ologee — Super Admin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap">
+
+<style>
+:root {
+  --black:     #0F0F0D;
+  --ink:       #1A1A18;
+  --emerald:   #187A49;
+  --em-mid:    #1F9A5E;
+  --em-light:  #E8F5EE;
+  --gold:      #B8922E;
+  --gold-lt:   #FDF4E0;
+  --red:       #C0392B;
+  --red-lt:    #FDECEB;
+  --blue:      #1A5FA0;
+  --blue-lt:   #EBF2FA;
+  --purple:    #6B3FA0;
+  --purple-lt: #F0EBF8;
+
+  --canvas:    #F5F4F0;
+  --surface:   #FFFFFF;
+  --surface-2: #F9F8F5;
+  --line:      #E8E7E2;
+  --fg:        #18181A;
+  --fg-2:      #636360;
+  --fg-3:      #A8A8A4;
+
+  --sidebar-w: 220px;
+  --topbar-h:  52px;
+  --r: 12px; --r-sm: 8px;
+
+  font-family: 'Inter', system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #111110; --surface: #1A1A18; --surface-2: #222220;
+    --line: #2E2E2C; --fg: #EEECEA; --fg-2: #909088; --fg-3: #5A5A56;
+    --em-light: #0D2418; --gold-lt: #261D08; --red-lt: #2A0E0C; --blue-lt: #0A1A2E; --purple-lt: #1A1226;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --canvas: #111110; --surface: #1A1A18; --surface-2: #222220;
+  --line: #2E2E2C; --fg: #EEECEA; --fg-2: #909088; --fg-3: #5A5A56;
+  --em-light: #0D2418; --gold-lt: #261D08; --red-lt: #2A0E0C; --blue-lt: #0A1A2E; --purple-lt: #1A1226;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, textarea, select { font-family: inherit; }
+
+body {
+  background: var(--canvas); color: var(--fg);
+  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* ══ TOPBAR ══ */
+.topbar {
+  height: var(--topbar-h); background: var(--black);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px;
+  flex-shrink: 0; z-index: 200;
+}
+.tb-logo { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.05rem; color: #fff; flex-shrink: 0; }
+.tb-logo span { color: var(--emerald); }
+.tb-role {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 99px;
+  background: rgba(107,63,160,0.3); color: #c49bff; flex-shrink: 0;
+}
+.tb-spacer { flex: 1; }
+.tb-notif {
+  position: relative; width: 32px; height: 32px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; cursor: pointer; color: rgba(255,255,255,0.5);
+}
+.tb-notif:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.notif-dot { position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); border: 1.5px solid var(--black); }
+.tb-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #6B3FA0, var(--emerald));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700; color: #fff; cursor: pointer; flex-shrink: 0;
+}
+
+/* ══ VERTICAL SWITCHER ══ */
+.vertical-bar {
+  background: var(--black); border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; padding: 0 20px; gap: 4px; flex-shrink: 0;
+}
+.vt-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px; height: 36px; border-radius: var(--r-sm);
+  font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35);
+  cursor: pointer; transition: all 0.12s; border: 1px solid transparent; background: none;
+}
+.vt-btn:hover { color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.05); }
+.vt-btn.active { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
+.vt-btn.active.v-mat { border-color: rgba(24,122,73,0.45); color: #6fcfa0; }
+.vt-btn.active.v-pccs { border-color: rgba(26,95,160,0.45); color: #7ab4e8; }
+.vt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.vt-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); margin: 0 6px; }
+
+/* ══ SHELL ══ */
+.shell { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+.sidebar {
+  width: var(--sidebar-w); background: var(--black);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.nav-section { padding: 16px 0 8px; }
+.nav-label { padding: 0 16px 6px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px; cursor: pointer;
+  font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.45);
+  transition: all 0.11s; position: relative;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.nav-item.active { color: #fff; font-weight: 600; background: rgba(255,255,255,0.08); }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 2px; border-radius: 2px; background: var(--emerald); }
+.nav-icon { font-size: 0.85rem; width: 16px; text-align: center; flex-shrink: 0; }
+.nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; background: var(--red); color: #fff; font-size: 0.58rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.sidebar-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; }
+.sidebar-user { display: flex; gap: 10px; align-items: center; }
+.su-av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #6B3FA0, var(--emerald)); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.su-name { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+.su-role { font-size: 0.64rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+.main { flex: 1; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.page-head { padding: 28px 32px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ph-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 5px; }
+.ph-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.4rem; color: var(--fg); }
+.ph-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+.btn-em { display: inline-flex; align-items: center; gap: 6px; padding: 0 16px; height: 34px; border-radius: var(--r-sm); background: var(--emerald); color: #fff; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.12s; }
+.btn-em:hover { background: var(--em-mid); }
+.btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 32px; border-radius: var(--r-sm); background: transparent; border: 1px solid var(--line); color: var(--fg-2); font-size: 0.74rem; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+.btn-ghost:hover { background: var(--surface); color: var(--fg); }
+.btn-ink { display: inline-flex; align-items: center; gap: 6px; padding: 0 16px; height: 34px; border-radius: var(--r-sm); background: var(--fg); color: var(--canvas); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.12s; }
+.btn-ink:hover { background: var(--emerald); }
+.btn-red { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 30px; border-radius: var(--r-sm); background: var(--red-lt); color: var(--red); font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+
+.pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.pill-em  { background: var(--em-light); color: var(--emerald); }
+.pill-gld { background: var(--gold-lt);  color: var(--gold); }
+.pill-red { background: var(--red-lt);   color: var(--red); }
+.pill-neu { background: var(--surface-2); color: var(--fg-2); border: 1px solid var(--line); }
+.pill-pur { background: var(--purple-lt); color: var(--purple); }
+.pill-blu { background: var(--blue-lt);  color: var(--blue); }
+.v-tag-mat { font-size: 0.58rem; font-weight: 700; color: #187A49; background: var(--em-light); padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+.v-tag-pccs { font-size: 0.58rem; font-weight: 700; color: #1A5FA0; background: var(--blue-lt); padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+
+.toggle { width: 32px; height: 18px; border-radius: 99px; background: var(--line); position: relative; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform 0.15s; }
+.toggle.on { background: var(--emerald); }
+.toggle.on::after { transform: translateX(14px); }
+
+/* ══ HOME ══ */
+.home-body { padding: 28px 32px; display: flex; flex-direction: column; gap: 28px; }
+.kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.kpi-cell { background: var(--surface); padding: 18px 20px; }
+.kpi-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 8px; }
+.kpi-val { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.6rem; color: var(--fg); line-height: 1; }
+.kpi-delta { font-size: 0.65rem; color: var(--emerald); margin-top: 5px; font-weight: 600; }
+.kpi-delta.neg { color: var(--red); }
+
+.sec-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.sec-head { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.sec-title { font-size: 0.8rem; font-weight: 700; color: var(--fg); }
+.sec-link { font-size: 0.7rem; color: var(--emerald); cursor: pointer; font-weight: 600; }
+.action-item { display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--line); }
+.action-item:last-child { border-bottom: none; }
+.ai-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.ai-text { flex: 1; }
+.ai-title { font-size: 0.78rem; font-weight: 600; color: var(--fg); }
+.ai-sub { font-size: 0.65rem; color: var(--fg-3); margin-top: 2px; }
+.ai-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ══ TENANTS ══ */
+.tenant-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+.tenant-table { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.tt-cols { grid-template-columns: 2fr 90px 1fr 1fr 1fr 1fr 100px; }
+.tt-head { display: grid; padding: 10px 20px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.tt-row { display: grid; padding: 13px 20px; border-bottom: 1px solid var(--line); align-items: center; }
+.tt-row:last-child { border-bottom: none; }
+.tt-row:hover { background: var(--surface-2); }
+.tc { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-3); }
+.td { font-size: 0.75rem; color: var(--fg-2); }
+.td.strong { font-weight: 600; color: var(--fg); }
+.org-name { display: flex; align-items: center; gap: 10px; }
+.org-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ══ APPROVALS ══ */
+.approvals-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+.approval-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.ac-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ac-title { font-size: 0.88rem; font-weight: 700; color: var(--fg); margin-bottom: 4px; }
+.ac-meta { font-size: 0.68rem; color: var(--fg-3); }
+.ac-body { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+.ac-detail { font-size: 0.74rem; color: var(--fg-2); }
+.ac-detail strong { color: var(--fg); }
+.ac-footer { padding: 12px 20px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+/* ══ REVENUE ══ */
+.revenue-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; }
+.rev-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.rs-cell { background: var(--surface); padding: 20px 22px; }
+.rs-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 8px; }
+.rs-val { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.5rem; color: var(--fg); line-height: 1; }
+.rs-sub { font-size: 0.65rem; color: var(--fg-2); margin-top: 5px; }
+.tx-table { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.tx-cols { grid-template-columns: 2fr 80px 1fr 1fr 1fr 80px; }
+.tx-head { display: grid; padding: 10px 20px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.tx-row { display: grid; padding: 12px 20px; border-bottom: 1px solid var(--line); align-items: center; }
+.tx-row:last-child { border-bottom: none; }
+.tx-row:hover { background: var(--surface-2); }
+
+/* ══ SYSTEM ══ */
+.system-body { padding: 28px 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.setting-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 24px; }
+.sk-title { font-size: 0.8rem; font-weight: 700; color: var(--fg); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.sk-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.sk-toggle-row:last-child { border-bottom: none; }
+.sk-toggle-lbl { font-size: 0.76rem; color: var(--fg); }
+.sk-toggle-sub { font-size: 0.64rem; color: var(--fg-3); margin-top: 2px; }
+.sk-field { margin-bottom: 14px; }
+.sk-label { font-size: 0.68rem; font-weight: 600; color: var(--fg-2); margin-bottom: 6px; }
+.sk-input { width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-2); padding: 8px 12px; font-size: 0.8rem; color: var(--fg); outline: none; }
+.sk-input:focus { border-color: var(--emerald); }
+</style>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">Olog<span>ee</span></div>
+  <div class="tb-role">Super Admin</div>
+  <div class="tb-spacer"></div>
+  <div id="tb-vertical-label" style="font-size:0.68rem;color:rgba(255,255,255,0.3);font-weight:500;">Platform · All Verticals</div>
+  <div class="tb-notif">🔔<div class="notif-dot"></div></div>
+  <div class="tb-av">SA</div>
+</div>
+
+<!-- VERTICAL SWITCHER -->
+<div class="vertical-bar">
+  <button class="vt-btn active" id="vt-all" onclick="setVertical('all')">
+    <span class="vt-dot" style="background:linear-gradient(135deg,#187A49,#1A5FA0);"></span> All Verticals
+  </button>
+  <div class="vt-divider"></div>
+  <button class="vt-btn v-mat" id="vt-mat" onclick="setVertical('mat')">
+    <span class="vt-dot" style="background:#187A49;"></span> Matrilineal
+  </button>
+  <button class="vt-btn v-pccs" id="vt-pccs" onclick="setVertical('pccs')">
+    <span class="vt-dot" style="background:#1A5FA0;"></span> Transitional Care
+  </button>
+  <div style="margin-left:auto;font-size:0.62rem;color:rgba(255,255,255,0.2);font-weight:500;letter-spacing:0.04em;">
+    Scope: <span id="vt-scope-label" style="color:rgba(255,255,255,0.35);">Platform-wide</span>
+  </div>
+</div>
+
+<!-- SHELL -->
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Platform</div>
+      <div class="nav-item active" id="nav-home" onclick="go('home')"><span class="nav-icon">⊞</span> Overview</div>
+      <div class="nav-item" id="nav-tenants" onclick="go('tenants')"><span class="nav-icon">🏢</span> Organizations</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Content</div>
+      <div class="nav-item" id="nav-approvals" onclick="go('approvals')"><span class="nav-icon">📋</span> Course Approvals<span class="nav-badge">4</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Financial</div>
+      <div class="nav-item" id="nav-revenue" onclick="go('revenue')"><span class="nav-icon">💰</span> Revenue</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" id="nav-system" onclick="go('system')"><span class="nav-icon">⚙</span> System Settings</div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="su-av">SA</div>
+        <div><div class="su-name">Ologee Admin</div><div class="su-role">Super Admin</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- ══ HOME ══ -->
+    <div class="tab-panel active" id="tab-home">
+      <div class="page-head">
+        <div>
+          <div class="ph-label" id="home-ph-label">Ologee Platform</div>
+          <div class="ph-title">Platform Overview</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn-ghost">Export report</button>
+          <button class="btn-em">+ New organization</button>
+        </div>
+      </div>
+
+      <!-- vertical context banner -->
+      <div id="home-banner" hidden style="margin:18px 32px 0;padding:11px 16px;border-radius:var(--r-sm);display:flex;align-items:center;gap:10px;font-size:0.74rem;font-weight:600;"></div>
+
+      <div class="home-body">
+        <!-- All-verticals KPIs -->
+        <div class="kpi-strip" id="kpi-all">
+          <div class="kpi-cell"><div class="kpi-label">Organizations</div><div class="kpi-val">12</div><div class="kpi-delta">↑ 2 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Total Members</div><div class="kpi-val">3,840</div><div class="kpi-delta">↑ 214 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Courses Live</div><div class="kpi-val">74</div><div class="kpi-delta">↑ 8 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Platform Revenue</div><div class="kpi-val">$41.2k</div><div class="kpi-delta">↑ 18% vs last month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Ologee Fees (5%)</div><div class="kpi-val">$2,060</div><div class="kpi-delta">MTD collected</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Pending Approvals</div><div class="kpi-val">4</div><div class="kpi-delta neg">Needs review</div></div>
+        </div>
+
+        <!-- Matrilineal KPIs -->
+        <div class="kpi-strip" id="kpi-mat" hidden>
+          <div class="kpi-cell"><div class="kpi-label">Matrilineal Orgs</div><div class="kpi-val">8</div><div class="kpi-delta">↑ 1 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Members</div><div class="kpi-val">2,640</div><div class="kpi-delta">↑ 156 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Courses Live</div><div class="kpi-val">52</div><div class="kpi-delta">↑ 6 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Revenue MTD</div><div class="kpi-val">$27.8k</div><div class="kpi-delta">↑ 14% vs last month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Ologee Fees</div><div class="kpi-val">$1,390</div><div class="kpi-delta">MTD collected</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Pending Approvals</div><div class="kpi-val">2</div><div class="kpi-delta neg">Needs review</div></div>
+        </div>
+
+        <!-- Transitional Care KPIs -->
+        <div class="kpi-strip" id="kpi-pccs" hidden>
+          <div class="kpi-cell"><div class="kpi-label">PCCS Orgs</div><div class="kpi-val">4</div><div class="kpi-delta">↑ 1 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Members</div><div class="kpi-val">1,200</div><div class="kpi-delta">↑ 58 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Courses Live</div><div class="kpi-val">22</div><div class="kpi-delta">↑ 2 this month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Revenue MTD</div><div class="kpi-val">$13.4k</div><div class="kpi-delta">↑ 24% vs last month</div></div>
+          <div class="kpi-cell"><div class="kpi-label">Ologee Fees</div><div class="kpi-val">$670</div><div class="kpi-delta">MTD collected</div></div>
+          <div class="kpi-cell"><div class="kpi-label">HIPAA Orgs</div><div class="kpi-val">3</div><div class="kpi-delta">BAA active</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+          <div class="sec-card" style="grid-column:1/-1;">
+            <div class="sec-head"><div class="sec-title">Platform Alerts</div><span class="pill pill-red">3 items</span></div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--em-light);">📚</div>
+              <div class="ai-text"><div class="ai-title">4 courses awaiting super admin approval</div><div class="ai-sub">Org-approved and queued for platform-level review · Oldest: 2 days ago</div></div>
+              <div class="ai-actions"><button class="btn-ghost" style="height:28px;font-size:0.68rem;" onclick="go('approvals')">Review</button></div>
+            </div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--blue-lt);">🏢</div>
+              <div class="ai-text"><div class="ai-title">New organization application: Transitional Care PCCS</div><div class="ai-sub">Submitted Oct 14 · Awaiting platform onboarding approval · <span class="v-tag-pccs">Trans. Care</span></div></div>
+              <div class="ai-actions"><button class="btn-ghost" style="height:28px;font-size:0.68rem;" onclick="go('tenants')">Review</button></div>
+            </div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--gold-lt);">⚠️</div>
+              <div class="ai-text"><div class="ai-title">Stripe Connect issue: Ologee Institute payout delayed</div><div class="ai-sub">Verification required by Nov 1 · <span class="v-tag-mat">Matrilineal</span></div></div>
+              <div class="ai-actions"><button class="btn-ghost" style="height:28px;font-size:0.68rem;" onclick="go('revenue')">View</button></div>
+            </div>
+          </div>
+
+          <div class="sec-card">
+            <div class="sec-head"><div class="sec-title">Top Organizations</div><span class="sec-link" onclick="go('tenants')">View all →</span></div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--em-light);font-size:0.7rem;font-weight:700;color:var(--emerald);">#1</div>
+              <div class="ai-text"><div class="ai-title">Ologee Institute <span class="v-tag-mat" style="margin-left:4px;">Matrilineal</span></div><div class="ai-sub">512 members · $14,100 MTD</div></div>
+              <span class="pill pill-em">Active</span>
+            </div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--blue-lt);font-size:0.7rem;font-weight:700;color:var(--blue);">#2</div>
+              <div class="ai-text"><div class="ai-title">Restorative Legacy Ecosystem <span class="v-tag-mat" style="margin-left:4px;">Matrilineal</span></div><div class="ai-sub">284 members · $8,240 MTD</div></div>
+              <span class="pill pill-em">Active</span>
+            </div>
+            <div class="action-item">
+              <div class="ai-icon" style="background:var(--purple-lt);font-size:0.7rem;font-weight:700;color:var(--purple);">#3</div>
+              <div class="ai-text"><div class="ai-title">Community Justice Alliance <span class="v-tag-mat" style="margin-left:4px;">Matrilineal</span></div><div class="ai-sub">198 members · $5,800 MTD</div></div>
+              <span class="pill pill-em">Active</span>
+            </div>
+          </div>
+
+          <div class="sec-card">
+            <div class="sec-head"><div class="sec-title">Revenue Snapshot</div><span class="sec-link" onclick="go('revenue')">Full report →</span></div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:0.72rem;color:var(--fg-2);">October 2026 (MTD)</span><span style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--fg);">$41,200</span></div>
+              <div style="height:1px;background:var(--line);"></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:0.72rem;color:var(--fg-2);">Gross across all orgs</span><span style="font-size:0.74rem;font-weight:600;color:var(--fg);">$43,368</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:0.72rem;color:var(--fg-2);">Matrilineal vertical</span><span style="font-size:0.74rem;font-weight:600;color:#187A49;">$27,800</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:0.72rem;color:var(--fg-2);">Transitional Care vertical</span><span style="font-size:0.74rem;font-weight:600;color:#1A5FA0;">$13,400</span></div>
+              <div style="height:1px;background:var(--line);"></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:0.72rem;color:var(--fg-2);">Ologee fee (5%)</span><span style="font-size:0.74rem;font-weight:600;color:var(--emerald);">+$2,168</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:0.72rem;color:var(--fg-2);">Next bulk payout</span><span style="font-size:0.72rem;color:var(--fg);">Nov 1, 2026</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /tab-home -->
+
+    <!-- ══ TENANTS ══ -->
+    <div class="tab-panel" id="tab-tenants">
+      <div class="page-head">
+        <div><div class="ph-label">Platform</div><div class="ph-title">Organizations</div></div>
+        <div class="ph-actions">
+          <button class="btn-ghost">Export CSV</button>
+          <button class="btn-em">+ New organization</button>
+        </div>
+      </div>
+      <div class="tenant-body">
+        <div style="background:var(--blue-lt);border:1px solid var(--blue);border-radius:var(--r-sm);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="font-size:0.76rem;color:var(--fg);font-weight:600;">🏢 1 organization pending platform approval — Transitional Care PCCS <span class="v-tag-pccs" style="margin-left:6px;">Trans. Care</span></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-em" style="height:28px;font-size:0.68rem;padding:0 10px;">Approve</button>
+            <button class="btn-red" style="height:28px;font-size:0.68rem;">Deny</button>
+          </div>
+        </div>
+        <div class="tenant-table">
+          <div class="tt-head tt-cols">
+            <span class="tc">Organization</span>
+            <span class="tc">Vertical</span>
+            <span class="tc">Plan</span>
+            <span class="tc">Members</span>
+            <span class="tc">Courses</span>
+            <span class="tc">MTD Revenue</span>
+            <span class="tc">Status</span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:var(--emerald);"></div><div><div class="td strong">Ologee Institute</div><div style="font-size:0.62rem;color:var(--fg-3);">ologee.institute</div></div></div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td"><span class="pill pill-pur" style="font-size:0.58rem;">Enterprise</span></span>
+            <span class="td">512</span><span class="td">24</span><span class="td strong">$14,100</span>
+            <span class="td"><span class="pill pill-em">Active</span></span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:#1A5FA0;"></div><div><div class="td strong">Restorative Legacy Ecosystem</div><div style="font-size:0.62rem;color:var(--fg-3);">learn.restorativelegacy.org</div></div></div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td"><span class="pill pill-blu" style="font-size:0.58rem;">Growth</span></span>
+            <span class="td">284</span><span class="td">7</span><span class="td strong">$8,240</span>
+            <span class="td"><span class="pill pill-em">Active</span></span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:#6B3FA0;"></div><div><div class="td strong">Community Justice Alliance</div><div style="font-size:0.62rem;color:var(--fg-3);">cja.ologee.com</div></div></div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td"><span class="pill pill-blu" style="font-size:0.58rem;">Growth</span></span>
+            <span class="td">198</span><span class="td">11</span><span class="td strong">$5,800</span>
+            <span class="td"><span class="pill pill-em">Active</span></span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:#B8922E;"></div><div><div class="td strong">Youth Advocacy Network</div><div style="font-size:0.62rem;color:var(--fg-3);">yan.ologee.com</div></div></div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td"><span class="pill pill-neu" style="font-size:0.58rem;">Starter</span></span>
+            <span class="td">87</span><span class="td">5</span><span class="td strong">$2,410</span>
+            <span class="td"><span class="pill pill-em">Active</span></span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:var(--fg-3);"></div><div><div class="td strong">Healing Futures Collective</div><div style="font-size:0.62rem;color:var(--fg-3);">hfc.ologee.com</div></div></div>
+            <span class="td"><span class="v-tag-pccs">Trans. Care</span></span>
+            <span class="td"><span class="pill pill-neu" style="font-size:0.58rem;">Starter</span></span>
+            <span class="td">44</span><span class="td">3</span><span class="td strong">$980</span>
+            <span class="td"><span class="pill pill-gld">Trial</span></span>
+          </div>
+          <div class="tt-row tt-cols">
+            <div class="org-name"><div class="org-dot" style="background:var(--red);"></div><div><div class="td strong">Transitional Care PCCS</div><div style="font-size:0.62rem;color:var(--fg-3);">Pending setup</div></div></div>
+            <span class="td"><span class="v-tag-pccs">Trans. Care</span></span>
+            <span class="td">—</span><span class="td">—</span><span class="td">—</span><span class="td">—</span>
+            <span class="td"><span class="pill pill-gld">Pending</span></span>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-tenants -->
+
+    <!-- ══ APPROVALS ══ -->
+    <div class="tab-panel" id="tab-approvals">
+      <div class="page-head">
+        <div><div class="ph-label">Content</div><div class="ph-title">Course Approvals</div></div>
+        <div class="ph-actions"><span class="pill pill-red" style="font-size:0.68rem;padding:5px 12px;">4 pending</span></div>
+      </div>
+      <div class="approvals-body">
+        <div style="font-size:0.72rem;color:var(--fg-2);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 16px;">
+          These courses have been approved by their respective org admins and are queued for final platform-level review before going live.
+        </div>
+        <div class="approval-card">
+          <div class="ac-head">
+            <div>
+              <div class="ac-title">Running Restorative Circles in Virtual Spaces</div>
+              <div class="ac-meta">Dr. Amara Cole · Restorative Legacy Ecosystem · Org-approved 2h ago · <span class="v-tag-mat" style="margin-right:4px;">Matrilineal</span><span class="pill pill-gld">Awaiting Review</span></div>
+            </div>
+            <button class="btn-ghost" style="height:30px;font-size:0.7rem;flex-shrink:0;">Preview</button>
+          </div>
+          <div class="ac-body">
+            <div class="ac-detail"><strong>Description:</strong> Adapting restorative circle practices for Zoom, Teams, and hybrid environments.</div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px;">
+              <div class="ac-detail"><strong>Chapters:</strong> 4</div>
+              <div class="ac-detail"><strong>Lessons:</strong> 18</div>
+              <div class="ac-detail"><strong>Price:</strong> $95</div>
+              <div class="ac-detail"><strong>Certificate:</strong> Yes</div>
+              <div class="ac-detail"><strong>HIPAA content:</strong> No</div>
+            </div>
+          </div>
+          <div class="ac-footer">
+            <div style="font-size:0.68rem;color:var(--fg-3);">Publishing makes this course live for enrolled members immediately.</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-ghost" style="height:32px;font-size:0.72rem;color:var(--red);">Flag for review</button>
+              <button class="btn-ghost" style="height:32px;font-size:0.72rem;color:var(--red);border-color:var(--red);">Reject</button>
+              <button class="btn-em" style="height:32px;font-size:0.72rem;">✓ Publish</button>
+            </div>
+          </div>
+        </div>
+        <div class="approval-card">
+          <div class="ac-head">
+            <div>
+              <div class="ac-title">Foundations of Transformative Justice</div>
+              <div class="ac-meta">Marcus Reid · Ologee Institute · Org-approved Yesterday · <span class="v-tag-mat" style="margin-right:4px;">Matrilineal</span><span class="pill pill-gld">Awaiting Review</span></div>
+            </div>
+            <button class="btn-ghost" style="height:30px;font-size:0.7rem;flex-shrink:0;">Preview</button>
+          </div>
+          <div class="ac-body">
+            <div class="ac-detail"><strong>Description:</strong> An introduction to transformative justice as an alternative to punitive systems, with case studies from community-based organizations.</div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px;">
+              <div class="ac-detail"><strong>Chapters:</strong> 6</div>
+              <div class="ac-detail"><strong>Lessons:</strong> 28</div>
+              <div class="ac-detail"><strong>Price:</strong> $140</div>
+              <div class="ac-detail"><strong>Certificate:</strong> Yes</div>
+              <div class="ac-detail"><strong>HIPAA content:</strong> No</div>
+            </div>
+          </div>
+          <div class="ac-footer">
+            <div style="font-size:0.68rem;color:var(--fg-3);">Publishing makes this course live for enrolled members immediately.</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-ghost" style="height:32px;font-size:0.72rem;color:var(--red);">Flag for review</button>
+              <button class="btn-ghost" style="height:32px;font-size:0.72rem;color:var(--red);border-color:var(--red);">Reject</button>
+              <button class="btn-em" style="height:32px;font-size:0.72rem;">✓ Publish</button>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 20px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--fg);margin-bottom:12px;">+ 2 more pending</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--line);">
+              <div><div style="font-size:0.78rem;color:var(--fg);font-weight:500;">Community Accountability Without Police</div><div style="font-size:0.63rem;color:var(--fg-3);">Community Justice Alliance · <span style="color:#187A49;font-weight:600;">Matrilineal</span> · Submitted 2 days ago</div></div>
+              <button class="btn-ghost" style="height:26px;font-size:0.65rem;">Review</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div><div style="font-size:0.78rem;color:var(--fg);font-weight:500;">Healing-Centered Engagement for Youth Workers</div><div style="font-size:0.63rem;color:var(--fg-3);">Youth Advocacy Network · <span style="color:#1A5FA0;font-weight:600;">Trans. Care</span> · Submitted 3 days ago</div></div>
+              <button class="btn-ghost" style="height:26px;font-size:0.65rem;">Review</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-approvals -->
+
+    <!-- ══ REVENUE ══ -->
+    <div class="tab-panel" id="tab-revenue">
+      <div class="page-head">
+        <div><div class="ph-label">Financial</div><div class="ph-title">Platform Revenue</div></div>
+        <div class="ph-actions">
+          <button class="btn-ghost">Export CSV</button>
+          <select style="border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);padding:7px 12px;font-size:0.75rem;color:var(--fg);outline:none;">
+            <option>October 2026</option><option>September 2026</option><option>August 2026</option>
+          </select>
+        </div>
+      </div>
+      <div class="revenue-body">
+        <div class="rev-summary">
+          <div class="rs-cell"><div class="rs-label">Gross Revenue</div><div class="rs-val">$43,368</div><div class="rs-sub">All org transactions MTD</div></div>
+          <div class="rs-cell"><div class="rs-label">Matrilineal</div><div class="rs-val">$29,968</div><div class="rs-sub" style="color:#187A49;font-weight:600;">↑ 14% vs last month</div></div>
+          <div class="rs-cell"><div class="rs-label">Transitional Care</div><div class="rs-val">$13,400</div><div class="rs-sub" style="color:#1A5FA0;font-weight:600;">↑ 24% vs last month</div></div>
+          <div class="rs-cell"><div class="rs-label">Platform Fees (5%)</div><div class="rs-val">$2,168</div><div class="rs-sub">Ologee retained MTD</div></div>
+          <div class="rs-cell"><div class="rs-label">Paid to Orgs</div><div class="rs-val">$41,200</div><div class="rs-sub">Net disbursed MTD</div></div>
+        </div>
+        <div style="background:var(--gold-lt);border:1px solid var(--gold);border-radius:var(--r-sm);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="font-size:0.76rem;color:var(--fg);font-weight:600;">⚠️ Stripe KYC required: Ologee Institute payout on hold · <span class="v-tag-mat" style="margin-left:2px;">Matrilineal</span> · Verify by Nov 1</div>
+          <button class="btn-ghost" style="height:28px;font-size:0.68rem;border-color:var(--gold);color:var(--gold);">Open Stripe</button>
+        </div>
+        <div class="tx-table">
+          <div class="tx-head tx-cols">
+            <span class="tc">Organization</span>
+            <span class="tc">Vertical</span>
+            <span class="tc">Gross</span>
+            <span class="tc">Fee (5%)</span>
+            <span class="tc">Net</span>
+            <span class="tc">Status</span>
+          </div>
+          <div class="tx-row tx-cols">
+            <div class="td strong">Ologee Institute</div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td">$14,842</span>
+            <span class="td" style="color:var(--emerald);">$742</span>
+            <span class="td strong">$14,100</span>
+            <span class="td"><span class="pill pill-gld">On hold</span></span>
+          </div>
+          <div class="tx-row tx-cols">
+            <div class="td strong">Restorative Legacy Ecosystem</div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td">$8,663</span>
+            <span class="td" style="color:var(--emerald);">$433</span>
+            <span class="td strong">$8,230</span>
+            <span class="td"><span class="pill pill-em">Scheduled</span></span>
+          </div>
+          <div class="tx-row tx-cols">
+            <div class="td strong">Community Justice Alliance</div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td">$6,105</span>
+            <span class="td" style="color:var(--emerald);">$305</span>
+            <span class="td strong">$5,800</span>
+            <span class="td"><span class="pill pill-em">Scheduled</span></span>
+          </div>
+          <div class="tx-row tx-cols">
+            <div class="td strong">Youth Advocacy Network</div>
+            <span class="td"><span class="v-tag-mat">Matrilineal</span></span>
+            <span class="td">$2,537</span>
+            <span class="td" style="color:var(--emerald);">$127</span>
+            <span class="td strong">$2,410</span>
+            <span class="td"><span class="pill pill-em">Scheduled</span></span>
+          </div>
+          <div class="tx-row tx-cols">
+            <div class="td strong">Healing Futures Collective</div>
+            <span class="td"><span class="v-tag-pccs">Trans. Care</span></span>
+            <span class="td">$1,031</span>
+            <span class="td" style="color:var(--emerald);">$51</span>
+            <span class="td strong">$980</span>
+            <span class="td"><span class="pill pill-em">Scheduled</span></span>
+          </div>
+          <div class="tx-row tx-cols" style="background:var(--surface-2);">
+            <div class="td strong">Total</div>
+            <span class="td"></span>
+            <span class="td strong">$33,178</span>
+            <span class="td strong" style="color:var(--emerald);">$1,658</span>
+            <span class="td strong">$31,520</span>
+            <span class="td"></span>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-revenue -->
+
+    <!-- ══ SYSTEM ══ -->
+    <div class="tab-panel" id="tab-system">
+      <div class="page-head">
+        <div><div class="ph-label">Platform</div><div class="ph-title">System Settings</div></div>
+        <div class="ph-actions"><button class="btn-em">Save changes</button></div>
+      </div>
+      <div class="system-body">
+        <div class="setting-card">
+          <div class="sk-title">Platform Config</div>
+          <div class="sk-field"><div class="sk-label">Platform Name</div><input class="sk-input" value="Ologee"></div>
+          <div class="sk-field"><div class="sk-label">Support Email</div><input class="sk-input" value="support@ologee.com"></div>
+          <div class="sk-field"><div class="sk-label">Platform Transaction Fee (%)</div><input class="sk-input" value="5"></div>
+        </div>
+        <div class="setting-card">
+          <div class="sk-title">Verticals</div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">🌿 Matrilineal vertical enabled</div><div class="sk-toggle-sub">Cultural learning, ancestral programming, community cohort courses</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">🏥 Transitional Care vertical enabled</div><div class="sk-toggle-sub">Clinical training, HIPAA-aligned, credentialed programs</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">Allow orgs to belong to both verticals</div><div class="sk-toggle-sub">Off = each org is scoped to exactly one vertical</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="sk-title">Enrollment & Approvals</div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">Require super admin course approval</div><div class="sk-toggle-sub">All org-approved courses need platform review before going live</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">Require org approval for new orgs</div><div class="sk-toggle-sub">New organization applications require super admin sign-off</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">Allow self-serve org creation</div><div class="sk-toggle-sub">Organizations can sign up without an invitation</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="sk-title">Compliance & Security</div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">HIPAA mode (Transitional Care only)</div><div class="sk-toggle-sub">Allow PCCS orgs to opt in to BAA-grade data controls</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">SSO / SAML available to orgs</div><div class="sk-toggle-sub">Enterprise orgs can configure their own identity providers</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="sk-toggle-row">
+            <div><div class="sk-toggle-lbl">Audit logging</div><div class="sk-toggle-sub">Log all admin actions platform-wide</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-card" style="grid-column:1/-1;">
+          <div class="sk-title">Stripe Connect</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <div class="sk-field"><div class="sk-label">Platform Stripe Account</div><input class="sk-input" value="acct_ologee_platform_live" readonly style="color:var(--fg-3);cursor:default;"></div>
+              <div class="sk-toggle-row">
+                <div><div class="sk-toggle-lbl">Automatic monthly payouts</div><div class="sk-toggle-sub">Disburse to orgs on the 1st of each month</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;justify-content:flex-end;padding-bottom:2px;">
+              <button class="btn-ghost" style="justify-content:center;">View Stripe dashboard</button>
+              <button class="btn-ink" style="justify-content:center;">Run manual payout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-system -->
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+const VERTICAL_DATA = {
+  all: {
+    label: 'Platform · All Verticals',
+    scope: 'Platform-wide',
+    banner: null,
+    kpi: 'kpi-all'
+  },
+  mat: {
+    label: 'Platform · Matrilineal',
+    scope: 'Matrilineal only',
+    banner: { bg: '#E8F5EE', border: '#187A49', color: '#187A49', text: '🌿 Viewing Matrilineal vertical — cultural learning, ancestral programming, community cohort courses.' },
+    kpi: 'kpi-mat'
+  },
+  pccs: {
+    label: 'Platform · Transitional Care',
+    scope: 'Transitional Care only',
+    banner: { bg: '#EBF2FA', border: '#1A5FA0', color: '#1A5FA0', text: '🏥 Viewing Transitional Care vertical — clinical training, HIPAA-aligned, credentialed programs.' },
+    kpi: 'kpi-pccs'
+  }
+};
+
+function setVertical(v) {
+  const d = VERTICAL_DATA[v];
+  ['all','mat','pccs'].forEach(id => {
+    document.getElementById('vt-' + id).classList.toggle('active', id === v);
+  });
+  document.getElementById('tb-vertical-label').textContent = d.label;
+  document.getElementById('vt-scope-label').textContent = d.scope;
+  const banner = document.getElementById('home-banner');
+  if (d.banner) {
+    banner.hidden = false;
+    banner.style.background = d.banner.bg;
+    banner.style.border = '1px solid ' + d.banner.border;
+    banner.style.color = d.banner.color;
+    banner.textContent = d.banner.text;
+  } else {
+    banner.hidden = true;
+  }
+  ['kpi-all','kpi-mat','kpi-pccs'].forEach(id => {
+    document.getElementById(id).hidden = (id !== d.kpi);
+  });
+}
+
+const NAV_MAP = { home: 'nav-home', tenants: 'nav-tenants', approvals: 'nav-approvals', revenue: 'nav-revenue', system: 'nav-system' };
+function go(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+  const nav = document.getElementById(NAV_MAP[id]);
+  if (nav) nav.classList.add('active');
+}
+</script>
+
+</body></html>
